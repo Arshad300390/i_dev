@@ -5,7 +5,7 @@ import colors from '../styles/colors'
 const WrapperContainer = ({
     statusBarColor = colors.white,
     barstyle = 'dark-content',
-    containerStyle={},
+    containerStyle = {},
     children,
 }) => {
   return (

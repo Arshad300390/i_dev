@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import Colors from "../../styles/colors";
+import colors from "../../styles/colors";
 import fontFamily from "../../styles/fontFamily";
 const styles = StyleSheet.create({
     descStyle: {
@@ -17,6 +17,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth :0.5,
-        paddingHorizontal: 10},
+        paddingHorizontal: 10,
+    },
+    textInputStyle: {
+                paddingVertical: 12,
+                borderBottomColor: colors.gray,
+                paddingHorizontal: 12,
+                fontFamily: fontFamily.regular,
+              },
 });
 export default styles;

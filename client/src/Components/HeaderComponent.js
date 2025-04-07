@@ -10,7 +10,9 @@ const HeaderComponent = ({
     isLeftView = false,
     containerStyle = {},
     rightTextStyle = {},
-    onPressRight = () => { },
+    onPressRight = () => {},
+    isRight = true,
+    rightPressActive = true,
 }) => {
     return (
         <View style={{ ...styles.container, ...containerStyle }} >
@@ -18,9 +20,9 @@ const HeaderComponent = ({
             <Text style={styles.centerTextStyle}>
                 {centerText}
             </Text>
-            <TouchableOpacity onPress={onPressRight}>
+            {isRight ? <TouchableOpacity disabled={rightPressActive} onPress={onPressRight}>
                 <Text style={{...styles.rightTextStyle, ...rightTextStyle}}>{rightText}</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> : <View />}
         </View>
     )
 }
