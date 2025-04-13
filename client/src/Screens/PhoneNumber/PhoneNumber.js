@@ -1,6 +1,6 @@
 /* eslint-disable jsx-quotes */
 /* eslint-disable react-native/no-inline-styles */
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import WrapperContainer from '../../Components/WrapperContainer';
 import HeaderComponent from '../../Components/HeaderComponent';
@@ -33,6 +33,7 @@ const PhoneNumber = ({ navigation }) => {
   const { selectedCountry, phoneNumber } = state
 
   const updateState = (data) => setState((state) => ({ ...state, ...data }))
+
 
   const fetchCountry = (data) => {
     updateState({ selectedCountry: data })

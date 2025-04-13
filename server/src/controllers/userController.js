@@ -3,13 +3,14 @@ const { retrieveUsers } = require('../utils/userUtils');
 
 exports.createUser = async (req, res) => {
     try {
-      const { name, phoneNumber, profileImage, about } = req.body;
+      const { name, phoneNumber, profileImage, about, selectedCountry } = req.body;
   
       const user = new User({
         name,
         phoneNumber,
         profileImage,
-        about
+        about,
+        selectedCountry
       });
   
       await user.save();
@@ -85,7 +86,7 @@ exports.getAllUsers = async(req, res) => {
     try {
       console.log('req body', req.body)
       const { otp, user_id} = req.body
-      if (otp !== '12356') {
+      if (otp !== '123456') {
         return res.status(400).json({ status: false, message: 'OTP invalid' });
       }
       const user = await User.findById(user_id);
