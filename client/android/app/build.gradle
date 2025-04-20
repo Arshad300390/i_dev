@@ -78,6 +78,11 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.client"
+
+    buildFeatures {
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.client"
         minSdkVersion rootProject.ext.minSdkVersion

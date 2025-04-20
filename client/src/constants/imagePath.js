@@ -13,5 +13,7 @@ export default  {
     icPlus: require('../assets/images/ic_plus.png'),
     icBigLight: require("../assets/images/ic_lightbg.png"),
     logo: require("../assets/images/wtsap_logo.png"),
+    down: require("../assets/images/arrow-down.png"),
+    up: require("../assets/images/arrow-up.png"),
 
 }

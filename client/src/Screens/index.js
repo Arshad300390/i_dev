@@ -13,3 +13,7 @@ export { default as TermsCondition } from './TermsCondition/TermsCondition';
 export { default as PhoneNumber } from './PhoneNumber/PhoneNumber';
 export { default as OtpVerification } from './OtpVerification/OtpVerification';
 export { default as EditProfile } from './EditProfile/EditProfile';
+
+//rest screens
+export {default as Users} from './Users/Users';
+export {default as Message} from './Message/Message';

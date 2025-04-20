@@ -11,7 +11,7 @@ const WrapperContainer = ({
   return (
     <View style={{...styles.container, ...containerStyle}}>
         <StatusBar backgroundColor={statusBarColor} barstyle={barstyle}/>
-      <SafeAreaView>
+      <SafeAreaView style={{flex: 1}}>
         {children}
       </SafeAreaView>
     </View>

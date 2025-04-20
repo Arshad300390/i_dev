@@ -93,7 +93,9 @@ exports.getAllUsers = async(req, res) => {
     if (!user) {
       return res.status(404).json({ status: false, message: 'User not found' });
     }
-
+    user.verified = true;
+    await user.save();
+    console.log(user);
     // Success response
     return res.json({ user, status: true, message: 'Success' });
     } catch (error) {

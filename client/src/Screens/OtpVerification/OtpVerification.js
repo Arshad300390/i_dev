@@ -11,8 +11,10 @@ import HorizontalLine from '../../Components/HorizontalLine';
 import styles from './styles';
 import OtpInputs from 'react-native-otp-inputs';
 import colors from '../../styles/colors';
-import { otpVerify, deleteUser } from '../../redux/slices/userSlice';
+import { otpVerify } from '../../redux/slices/authSlice';
+import { deleteUser } from '../../redux/slices/userSlice';
 import { useSelector, useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OtpVerification = ({ navigation, route }) => { 
   const dispatch = useDispatch();
@@ -21,8 +23,8 @@ const OtpVerification = ({ navigation, route }) => {
     // You can add any necessary effect here if needed
   }, [dispatch]);
 
-  const users = useSelector(state => state.user);
-  console.log('user before otp verify', users.users._id);
+  const auth = useSelector(state => state.auth);
+  console.log('user before otp verify', auth.user?._id);
 
   const { data, user } = route.params;
   console.log('user from params in otp screen', user);
@@ -44,8 +46,17 @@ const OtpVerification = ({ navigation, route }) => {
       })).unwrap();
 
       if (res) {
+        const existingUserId = await AsyncStorage.getItem('user_id');
+
+      // If a value exists under 'user_id', remove it
+      if (existingUserId) {
+        await AsyncStorage.removeItem('user_id');
+      }
+
+      // Now set the new user_id
+      await AsyncStorage.setItem('user_id', data?._id);
         console.log('res after send otp verify', res);
-        console.log("user after otp verify", users);
+        console.log("user after otp verify", auth.user);
       } else {
         console.log('OTP verification failed, deleting user');
         const res = await dispatch(deleteUser(data?._id));
@@ -81,7 +92,7 @@ const OtpVerification = ({ navigation, route }) => {
         </View>
       </View>
       <View>
-      <Text style={styles.bottomText}>{users.users._id}</Text>
+      <Text style={styles.bottomText}>{auth.user?._id}</Text>
       </View>
     </WrapperContainer>
   );

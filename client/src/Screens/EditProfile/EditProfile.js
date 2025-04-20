@@ -11,7 +11,8 @@ import RoundImage from '../../Components/RoundImage'
 import TextInputComp from '../../Components/TextInputComp'
 import ImagePicker from 'react-native-image-crop-picker';
 import { androidCameraPermission } from '../../utils/permissions'
-import { getUser, signUp } from '../../redux/slices/userSlice'
+import {signUp } from '../../redux/slices/authSlice'
+import { getUserById } from '../../redux/slices/userSlice'
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
@@ -19,7 +20,9 @@ import styles from './styles';
 const EditProfile = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const user = useSelector(state => state.user);
+  const auth = useSelector(state => state.auth);
+  const { user, loading } = auth;
+
   console.log('user in edit profile', user);
 
   const [state, setState] = useState({
@@ -34,14 +37,14 @@ const EditProfile = ({ route }) => {
   const updateState = (data) => setState((prevState) => ({ ...prevState, ...data }));
 
   useEffect(() => {
-    if (user?.users) {
-      console.log('user updated in useEffect:', user.users);
+    if (user) {
+      console.log('user updated in useEffect:', user);
       navigation.navigate(navigationStrings.OTP_VERIFICATION, {
-        data: user.users,
-        user: user.users,
+        data: user,
+        user: user,
       });
     }
-  }, [user?.users, navigation]); // Make sure navigation works after user data is available
+  }, [user, loading, navigation]); // Make sure navigation works after user data is available
 
   const leftCustomView = () => {
     return (
@@ -78,7 +81,7 @@ const EditProfile = ({ route }) => {
 
     try {
       // Dispatch signUp action
-      await dispatch(signUp(apiData));
+      await dispatch(signUp(apiData)).unwrap();
     } catch (error) {
       console.log(error);
     }

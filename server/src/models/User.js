@@ -11,6 +11,10 @@ const userSchema = new Schema({
  about: String,
  selectedCountry: {
    type: Object,
+ },
+ verified: {
+  type: Boolean,
+  default: false,
  }
 });
 

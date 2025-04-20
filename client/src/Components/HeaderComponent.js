@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import React from 'react'
 import colors from '../styles/colors'
 import fontFamily from '../styles/fontFamily'
@@ -10,9 +10,10 @@ const HeaderComponent = ({
     isLeftView = false,
     containerStyle = {},
     rightTextStyle = {},
-    onPressRight = () => {},
+    onPressRight = () => { },
     isRight = true,
     rightPressActive = true,
+    rightImage = '',
 }) => {
     return (
         <View style={{ ...styles.container, ...containerStyle }} >
@@ -20,9 +21,12 @@ const HeaderComponent = ({
             <Text style={styles.centerTextStyle}>
                 {centerText}
             </Text>
-            {isRight ? <TouchableOpacity disabled={rightPressActive} onPress={onPressRight}>
-                <Text style={{...styles.rightTextStyle, ...rightTextStyle}}>{rightText}</Text>
-            </TouchableOpacity> : <View />}
+            {isRight ?
+                <TouchableOpacity disabled={rightPressActive} onPress={onPressRight}>
+                    {rightImage ? <Image source={rightImage} />
+                        : <Text style={{ ...styles.rightTextStyle, ...rightTextStyle }}>{rightText}</Text>
+                    }
+                </TouchableOpacity> : <View />}
         </View>
     )
 }

@@ -8,7 +8,10 @@ const RoundImage = ({
     image = "",
     size = 80,
     onPress = () => { },
+    isStatic = false,
+    imageStyle 
 }) => {
+    let compImg = isStatic ? image :  {uri: image}
     return (
         <TouchableOpacity
             activeOpacity={0.7}
@@ -23,14 +26,14 @@ const RoundImage = ({
                 borderWidth: 1,
                 borderColor: colors.grey,
             }}>
-            {!!image ? 
+            {!!image ?
             <Image
             style={{
                 height: size,
                 width: size,
                 borderRadius: size / 2,
             }}
-            source={{uri: image}}
+            source={compImg}
             />
                 : <Text style={styles.textStyle}>add photo</Text>}
         </TouchableOpacity>

@@ -9,5 +9,7 @@ CALLS: 'Calls',
 STATUS: 'Status',
 CAMERA: 'Camera',
 CHATS: 'Chats',
+USERS: 'Users',
+MESSAGE: 'Message',
 
 };
