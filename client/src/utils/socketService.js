@@ -9,8 +9,8 @@ class WSService {
             this.socket = io(SOCKET_SERVER_URL, {
                 transports: ['websocket'],
             });
-            this.socket.on('connect', (data) => {
-                console.log('Connected to socket server',data);
+            this.socket.on('connect', () => {
+                console.log('Connected to socket server',);
             });
             this.socket.on('disconnect', (data) => {
                 console.log('Disconnected from socket server',data);

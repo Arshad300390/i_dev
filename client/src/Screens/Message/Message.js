@@ -1,3 +1,5 @@
+/* eslint-disable no-trailing-spaces */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useCallback, useState } from 'react'
@@ -9,85 +11,150 @@ import fontFamily from '../../styles/fontFamily';
 import { GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 import { useSelector } from 'react-redux';
 import colors from '../../styles/colors';
-
-
+import { useDispatch } from 'react-redux';
+import { sendMessage, getMessages } from '../../redux/slices/messageSlice';
+import socketService from '../../utils/socketService';
 export default function Message({ route, navigation }) {
+
+    const dispatch = useDispatch();
+
     const user = useSelector(state => state?.auth);
     const profileImage = user?.user?.profileImage;
     const id = user?.user?._id;
     console.log(profileImage);
     const [messages, setMessages] = useState([]);
-    console.log('route', route);
     const { data } = route.params;
 
-    useEffect(() => {
-        setMessages([
-            {
-                _id: 1,
-                text: 'Hello developer',
-                createdAt: new Date(),
-                user: {
-                    _id: data?._id,
-                    name: data.name,
-                    avatar: data.profileImage,
-                },
-                // image: 'https://img.freepik.com/free-photo/handsome-sensitive-red-head-man-smiling_23-2149509820.jpg',
-            },
-        ])
-    }, [])
+    const getUserAvatar = (senderId) => {
+        // You could store avatars in Redux or fetch them dynamically
+        if (senderId === id) {
+          return profileImage; // current user's avatar
+        }
+        return data?.profileImage || 'https://randomuser.me/api/portraits/men/77.jpg'; // fallback or another user's avatar
+      };
 
-    const onSend = useCallback((messages = []) => {
-        setMessages(previousMessages =>
-            GiftedChat.append(previousMessages, messages),
-        )
-    }, [])
+      useEffect(() => {
+        console.log("🔍 Fetching messages between:", user.user._id, data._id);
+    
+        dispatch(getMessages({
+            senderId: user.user._id,
+            receiverId: data._id,
+        }))
+        .unwrap()
+        .then((fetchedMessages) => {
+            console.log('Fetched Messages:', fetchedMessages); // Log the entire response
+            const formattedMessages = fetchedMessages.map((message) => {
+                console.log('Message:', message); // Log each message
+                return {
+                    _id: message._id ? message._id.toString() : 'defaultId', // Handle undefined _id
+                    text: message.text,
+                    createdAt: message.timestamp,
+                    user: {
+                      _id: message.senderId ? message.senderId.toString() : 'defaultUserId', // Handle undefined senderId
+                      name: message.senderName, // Assuming senderName is available
+                      avatar: getUserAvatar(message.senderId), // Add avatar here
+                    },
+                };
+            });
+            setMessages(formattedMessages.reverse());
+        })
+        
+        .catch((err) => {
+            console.error('Failed to fetch chat history:', err);
+        });
+    
+        socketService.initializeSocket();
+    
+        const handleNewMessage = (newMessage) => {
+            console.log("📩 New message received via socket:", newMessage);
+    
+            const isRelevant =
+                (newMessage.senderId === data._id && newMessage.receiverId === id) ||
+                (newMessage.senderId === id && newMessage.receiverId === data._id);
+    
+            if (isRelevant) {
+                setMessages((previousMessages) =>
+                    GiftedChat.append(previousMessages, [{
+                        _id: newMessage._id.toString(),
+                        text: newMessage.message,
+                        createdAt: new Date(newMessage.timestamp),
+                        user: {
+                            _id: newMessage.senderId,
+                            name: newMessage.senderName,
+                            avatar: getUserAvatar(newMessage.senderId),
+                        },
+                    }])
+                );
+            }
+        };
+    
+        socketService.on("newMessage", handleNewMessage);
+    
+        return () => {
+            socketService.removeListener("newMessage");
+        };
+    }, [user.user._id, data._id]);  // Add these as dependencies
+    
 
-    const renderActions = useCallback(() => {
+        const onSend = useCallback((messages = []) => {
+            const newMessage = messages[0];
+            setMessages(previousMessages =>
+                GiftedChat.append(previousMessages, messages),
+            )
+            // Dispatch to backend
+            dispatch(sendMessage({
+                senderId: user.user._id,
+                receiverId: data._id,
+                message: newMessage.text, // ✅ backend expects "message", not "text"
+            }));
+        }, [dispatch, user.user._id, data._id]);
+
+        const renderActions = useCallback(() => {
+            return (
+                <TouchableOpacity
+                    style={{ marginLeft: 8, marginBottom: 8 }}
+                >
+                    <Image source={imagePath.icPlus} />
+                </TouchableOpacity>
+            )
+        }, [])
+
         return (
-            <TouchableOpacity
-                style={{ marginLeft: 8, marginBottom: 8 }}
-            >
-                <Image source={imagePath.icPlus} />
-            </TouchableOpacity>
-        )
-    }, [])
-
-    return (
-        <View style={{ flex: 1 }}>
-            <SafeAreaView>
-                <View style={styles.flexView}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.goBack()}>
-                            <Image source={imagePath.icBack} />
-                        </TouchableOpacity>
-                        <View style={styles.nameView}>
-                            <RoundImage
-                                image={data?.profileImage}
-                                size={40}
-                            />
-                            <Text style={styles.nameTextStyle}>{data?.name}</Text>
+            <View style={{ flex: 1 }}>
+                <SafeAreaView>
+                    <View style={styles.flexView}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.goBack()}>
+                                <Image source={imagePath.icBack} />
+                            </TouchableOpacity>
+                            <View style={styles.nameView}>
+                                <RoundImage
+                                    image={data?.profileImage}
+                                    size={40}
+                                />
+                                <Text style={styles.nameTextStyle}>{data?.name}</Text>
+                            </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <TouchableOpacity>
+                                <Image
+                                    source={imagePath.icVideo}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ marginLeft: 12 }}>
+                                <Image
+                                    source={imagePath.icCalls}
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <TouchableOpacity>
-                            <Image
-                                source={imagePath.icVideo}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ marginLeft: 12 }}>
-                            <Image
-                                source={imagePath.icCalls}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                </View>
                 </SafeAreaView>
                 <ImageBackground source={imagePath.icBigLight} style={{ flex: 1 }}>
                     <GiftedChat
-                        messages={messages}
+                        messages={messages || []} 
                         onSend={messages => onSend(messages)}
                         user={{
-                            _id: id,
+                            _id: id?.toString(),
                             name: user.user.name,
                             avatar: profileImage,
                         }}
@@ -99,7 +166,7 @@ export default function Message({ route, navigation }) {
                             marginTop: 6,
                             borderWidth: 0.5,
                             borderColor: colors.grey,
-                            paddingTop:8,
+                            paddingTop: 8,
                         }}
                         renderInputToolbar={props => {
                             return (
@@ -114,29 +181,29 @@ export default function Message({ route, navigation }) {
                         renderActions={renderActions}
                     />
                 </ImageBackground>
-            
-        </View>
-    )
-}
+
+            </View>
+        )
+    }
 
 const styles = StyleSheet.create({
-    flexView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingBottom:8,
-        borderBottomWidth: 0.5,
-        borderBottomColor: colors.grey,
-    },
-    nameView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 8
-    },
-    nameTextStyle: {
-        fontFamily: fontFamily.regular,
-        fontSize: 16,
-        marginLeft: 8
-    }
-})
+        flexView: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingBottom: 8,
+            borderBottomWidth: 0.5,
+            borderBottomColor: colors.grey,
+        },
+        nameView: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginLeft: 8
+        },
+        nameTextStyle: {
+            fontFamily: fontFamily.regular,
+            fontSize: 16,
+            marginLeft: 8
+        }
+    })
