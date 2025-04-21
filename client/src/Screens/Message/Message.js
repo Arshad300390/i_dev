@@ -42,22 +42,30 @@ export default function Message({ route, navigation }) {
         }))
         .unwrap()
         .then((fetchedMessages) => {
-            console.log('Fetched Messages:', fetchedMessages); // Log the entire response
+            console.log('Fetched Messages:', fetchedMessages);
+            
+            const currentUserId = id; // IMPORTANT: Set this properly
+            
             const formattedMessages = fetchedMessages.map((message) => {
-                console.log('Message:', message); // Log each message
+                const isCurrentUser = message.senderId?.toString() === currentUserId;
+                
                 return {
-                    _id: message._id ? message._id.toString() : 'defaultId', // Handle undefined _id
+                    _id: message._id?.toString(),
                     text: message.text,
                     createdAt: message.timestamp,
                     user: {
-                      _id: message.senderId ? message.senderId.toString() : 'defaultUserId', // Handle undefined senderId
-                      name: message.senderName, // Assuming senderName is available
-                      avatar: getUserAvatar(message.senderId), // Add avatar here
+                        _id: message?.user?._id.toString(),
+                        name: message.senderName,
+                        avatar: getUserAvatar(message?.user?._id),
                     },
+                    // Add position control for Gifted Chat
+                    //position: isCurrentUser ? 'right' : 'left',
                 };
             });
+            console.log('in useeffect',formattedMessages)
             setMessages(formattedMessages.reverse());
         })
+        
         
         .catch((err) => {
             console.error('Failed to fetch chat history:', err);
@@ -98,9 +106,9 @@ export default function Message({ route, navigation }) {
 
         const onSend = useCallback((messages = []) => {
             const newMessage = messages[0];
-            setMessages(previousMessages =>
-                GiftedChat.append(previousMessages, messages),
-            )
+            // setMessages(previousMessages =>
+            //     GiftedChat.append(previousMessages, messages),
+            // )
             // Dispatch to backend
             dispatch(sendMessage({
                 senderId: user.user._id,
